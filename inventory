@@ -1,9 +1,17 @@
-[web_server]
-10.16.9.24
-10.16.9.25
-
-[db_servers]
+[debian]
 10.16.9.26
-
-[file_servers]
-10.16.9.27
+[Debian Desktop]
+[Dune]
+#10.16.9.45
+[Unify]
+#10.16.9.38
+[immich]
+#10.16.9.46
+[rr]
+#10.16.9.47
+[frigate]
+#10.16.9.69
+[kasm]
+#10.16.9.63
+[ubuntu desktop]
+#10.16.9.23
