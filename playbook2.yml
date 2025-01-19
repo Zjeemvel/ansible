@@ -1,0 +1,70 @@
+---
+- hosts: all
+  become: true
+  pre_tasks:
+    - name: Install updates (Ubuntu)
+      tags: always
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+    - name: install updates (CentOS)
+      tags: always
+      dnf:
+        update_only: yes
+        update_cache: yes
+      when: ansible_distribution == "CentOS"
+
+- hosts: web-servers
+  become: true
+  tags: webserver
+  tasks:
+    - name: Install Apache web server for Ubuntu servers
+      tags: apache,apache2,ubuntu
+      apt:
+        name:
+          - apache2
+          - libapache2-mod-php
+        state: latest
+      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+    - name: install apache and php for CentOS servers
+      tags: apache, php, centos, httpd
+      dnf:
+        name:
+          - httpd
+          - php
+        state: latest
+      when: ansible_distribution == "CentOS"
+
+- hosts: db_servers
+  become: true
+  tags: dbserver
+  tasks:
+    - name: Install MySQL server for Ubuntu servers
+      tags: ubuntu,db,mariadb
+      apt:
+        name:
+          - mysql-server
+        state: latest
+      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+    - name: Install MySQL server for CentOS servers
+      tags: centos, db, mariadb
+      dnf:
+        name:
+          - mariadb
+        state: latest
+      when: ansible_distribution == "CentOS"
+
+- hosts: file_servers
+  become: true
+  tags: fileserver
+  tasks:
+    - name: Install Samba
+      tags: samba
+      package:
+        name:
+          - samba
+        state: latest
