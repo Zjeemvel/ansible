@@ -4,8 +4,6 @@
 #10.16.9.26
 #10.16.9.27
 10.16.9.2
-
-
 [dune]
 #10.16.9.45
 [Unify]
@@ -23,6 +21,7 @@
 [docker]
 [web-servers]
 10.16.9.3
-
+[workstations]
+10.16.9.3
 [db_servers]
 [file_servers]

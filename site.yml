@@ -2,19 +2,47 @@
 - hosts: all
   become: true
   pre_tasks:
-    - name: install updates (CentOS)
+    - name: updated repo cache (CentOS)
       tags: always
       dnf:
-        update_only: yes
         update_cache: yes
+      changed_when: false
       when: ansible_distribution == "CentOS"
 
-    - name: install updates (Ubuntu)
+    - name: update repo cache (Ubuntu)
       tags: always
       apt:
-        upgrade: dist
+        upgrade: safe
         update_cache: yes
+      changed_when: false
       when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+- hosts: all
+  become: true
+  tasks:
+    - name: add ssh key for simone
+      tags: always
+      authorized_key:
+        user: simone
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPBVNUT17Dh4iSK7VKPcBEq7TUGHiOnPLsZgMPEz+C+E ansible"
+
+- hosts: workstations
+  become: true
+  tasks:
+    - name: install unzip
+      tags: unzip
+      package:
+        name: unzip
+        state: latest
+
+    - name: install terraform
+      unarchive:
+        src: https://releases.hashicorp.com/terraform/1.10.4/terraform_1.10.4_linux_amd64.zip
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: 0755
+        owner: root
+        group: root
 
 - hosts: web-servers
   become: true
@@ -36,6 +64,39 @@
           - libapache2-mod-php
         state: latest
       when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+    - name: start httpd (CentOS)
+      tags: httpd,apache,centos
+      service:
+        name: httpd
+        state: started
+        enabled: true
+      when: ansible_distribution == "CentOS"
+
+    - name: start apache2 (Ubuntu, Debian)
+      tags: apache,apache2, ubuntu, debian
+      service:
+        name: apache2
+        state: started
+        enabled: true
+      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+    - name: change e-mail addres for admin
+      tags: apache, apache2, httpd
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: "^ServerAdmin"
+        line: "ServerAdmin 123@example.com"
+        state: present
+      when: ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+      register: httpd
+
+    - name: start httpd (centos)
+      tags: httpd,apache,centos
+      service:
+        name: httpd
+        state: restarted
+      when: httpd.changed
 
     - name: copy default html file for site
       tags: apache, apache2, httpd
