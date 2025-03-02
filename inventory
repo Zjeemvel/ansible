@@ -19,9 +19,9 @@
 [UbuntuDesktop]
 #10.16.9.23
 [docker]
-[web-servers]
+[web_servers]
 10.16.9.3
 [workstations]
-10.16.9.3
+#10.16.9.3
 [db_servers]
 [file_servers]
